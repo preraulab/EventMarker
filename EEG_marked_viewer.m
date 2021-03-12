@@ -30,9 +30,9 @@ subplot(ax(2))
 plot(t,data);
 
 %Call event marker class to mark on the image
-% obj=EventMarker(<axis>,<xbounds>,<ybounds>
-if exist('drawline','class')
-em=EventMarker(ax(1),xbounds, ybounds, [], [], [], [], @test);
+% Call the older version if drawline doesn't exist
+if exist('drawline','file')
+    em=EventMarker(ax(1),xbounds, ybounds, [], [], [], [], @test);
 else
     em=EventMarker_imline(ax(1),xbounds, ybounds, [], [], [], [], @test);
 end

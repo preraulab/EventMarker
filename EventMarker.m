@@ -373,7 +373,7 @@ classdef EventMarker < handle
                             
                             %Get the region right bound
                             object_bounds(c+1)=event_pos(1)+event_pos(3);
-                            %Save indext into event_list
+                            %Save index into event_list
                             object_ind(c+1)=i;
                             c=c+2;
                         else

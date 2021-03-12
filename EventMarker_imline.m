@@ -1,3 +1,4 @@
+%USE THIS FOR OLDER VERSIONS THAT DON'T HAVE drawrectangle()
 classdef EventMarker_imline < handle
     
     %%%%%%%%%%%%%%%% public properties %%%%%%%%%%%%%%%%%%
@@ -117,7 +118,7 @@ classdef EventMarker_imline < handle
                 %Get data if event is being user defined
                 if nargin<3
                     %Pick click the start and end points
-                    points = get_clicks(obj.main_ax, 2);
+                    points = obj.get_clicks(2);
                     
                     xstart = [points(1,1) points(2,1)];
                     ystart = [points(1,2) points(2,2)];
@@ -142,7 +143,7 @@ classdef EventMarker_imline < handle
                 %Get data if event is being user defined
                 if nargin<3
                     %Pick click the moment for event
-                    pos = get_clicks(obj.main_ax, 1);
+                    pos = obj.get_clicks(1);
                     xpos = pos(1);
                     
                 else
@@ -559,6 +560,30 @@ classdef EventMarker_imline < handle
             new_pos(:,2) = ybounds';
         end
         
+        %-----------------------------------------------------------
+        %                NICER CLICK ROUTINE
+        %-----------------------------------------------------------
+        function pos = get_clicks(obj, num_clicks)
+            h_fig = obj.main_fig;
+            h_ax = obj.main_ax;
+            
+            pos = zeros(num_clicks, 2);
+            
+            iptPointerManager(h_fig);
+            iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'cross'));
+            
+            clicks = 0;
+            while clicks<num_clicks
+                w = waitforbuttonpress;
+                if ~w
+                    clicks = clicks + 1;
+                    p = get(h_ax,'CurrentPoint');
+                    pos(clicks,:) = p(1,1:2);
+                end
+            end
+            
+            iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'arrow'));
+        end
     end
 end
 
