@@ -11,7 +11,7 @@ if nargin==0
     verbose = true;
 end
 
-[spect, stimes, sfreqs]=multitaper_spectrogram_mex(data, Fs, frequency_range, taper_params, window_params, min_NFFT, detrend_opt, plot_on, verbose);
+[spect, stimes, sfreqs]=multitaper_spectrogram_mex(data, Fs, frequency_range, taper_params, window_params, min_NFFT, detrend_opt, [], plot_on, verbose);
 t=(1:length(data))/Fs;
 
 %Create figure
@@ -30,12 +30,8 @@ subplot(ax(2))
 plot(t,data);
 
 %Call event marker class to mark on the image
-% Call the older version if drawline doesn't exist
-if exist('drawline','file')
-    em=EventMarker(ax(1),xbounds, ybounds, [], [], [], [], @test);
-else
-    em=EventMarker_imline(ax(1),xbounds, ybounds, [], [], [], [], @test);
-end
+em=EventMarker(ax(1),xbounds, ybounds, [], [], [], [], @test);
+
 
 %Add events
 %obj.add_event_type(EventObject(<event type name>, <event ID>, <region? vs. point>, <bounded to yaxis?>)

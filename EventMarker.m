@@ -34,6 +34,8 @@ classdef EventMarker < handle
         
         current_object=[]; %Current_object selected
         current_object_ind=[]; %Index of selected object
+        
+        use_imline = ~exist('drawline','file');
     end
     
     %%%%%%%%%%%%%%% public methods %%%%%%%%%%%%%%%%%%%%%%
@@ -268,7 +270,7 @@ classdef EventMarker < handle
             end
         end
         %-----------------------------------------------------------
-        %                     SAVE DATA
+        %                     LOAD DATA
         %-----------------------------------------------------------
         function load(obj, fname)
             
@@ -333,7 +335,14 @@ classdef EventMarker < handle
             else
                 obj.check_double_click = [];
                 %disp('I am doing a double-click');
-                edit_event(obj);
+                if obj.use_imline
+                    disp('Using drawrectangle');
+                    edit_event(obj);
+                else
+                    
+                    disp('Using imline');
+                    edit_event_imline(obj);
+                end
             end
         end
         
@@ -476,6 +485,172 @@ classdef EventMarker < handle
         end
         
         %-----------------------------------------------------------
+        %                EDIT USER EVENT
+        %-----------------------------------------------------------
+        function edit_event_imline(obj, varargin)
+            
+            %Check if there are any events to edit
+            if isempty(obj.event_list)
+                set(gcf,'Pointer','arrow');
+                return;
+            else
+                %Handle a double click by a region
+                if isempty(obj.current_object)
+                    %Get the last point clicked
+                    click_pos=get(gca,'CurrentPoint');
+                    click_x=click_pos(1,1);
+                    
+                    %Find the closest region
+                    c=1;%Counter
+                    
+                    %Grab object bounds
+                    for i=1:length(obj.event_list)
+                        %Check event object
+                        check_obj=obj.event_list(i);
+                        
+                        %Handle region and line separately
+                        if check_obj.region
+                            %Get the xpositions
+                            event_pos=get(check_obj.obj_handle,'position');
+                            
+                            %Get the region left bound
+                            object_bounds(c)=event_pos(1);
+                            %Save index into event_list
+                            object_ind(c)=i;
+                            
+                            %Get the region right bound
+                            object_bounds(c+1)=event_pos(1)+event_pos(3);
+                            %Save indext into event_list
+                            object_ind(c+1)=i;
+                            c=c+2;
+                        else
+                            %Get the xpositions
+                            event_pos=get(check_obj.obj_handle,'xdata');
+                            %Get the x-value of the vertical line
+                            object_bounds(c)=event_pos(1);
+                            object_ind(c)=i;
+                            c=c+1;
+                        end
+                    end
+                    
+                    %Get closest regional bounds to click
+                    [~, ind]=min(abs(click_x(1)-object_bounds));
+                    closest_ind=object_ind(ind);
+                    closest_obj=obj.event_list(closest_ind);
+                    
+                    %Get the object handle
+                    obj_handle=closest_obj.obj_handle;
+                    %Get the text label info from the main object
+                    label_handle=closest_obj.label_handle;
+                    obj_id = closest_obj.event_ID;
+                    
+                    %Hide the region just selected
+                    set(obj_handle,'visible','off');
+                    
+                    if closest_obj.region
+                        %Create a selectable imrect in its exact position
+                        if closest_obj.constrain
+                            pos=get(obj_handle,'position');
+                            pos(2)=obj.ybounds(1);
+                            pos(4)=abs(diff(obj.ybounds));
+                            %Constrain if necessary
+                            selected_obj=imrect(obj.main_ax, pos);
+                        else
+                            selected_obj=imrect(obj.main_ax, get(obj_handle,'position'));
+                        end
+                        
+                        set(selected_obj,'UserData', obj_id);
+                        
+                        %Set the color
+                        setColor(selected_obj,[0 0 0]);
+                        rectangle_parts=get(selected_obj,'children');
+                        %Get rid of unnecessary control squares
+                        set(rectangle_parts([1:5 7:11]),'marker','none');
+                        %Make the side control squares big
+                        set(rectangle_parts(1:12),'markersize',15,'linewidth',2,'color','k')
+                        %Make the lines thicker
+                        set(rectangle_parts(14:end),'linewidth',5)
+                        
+                        
+                        %Constrain make region to full height
+                        if ~closest_obj.constrain
+                            %Make the side control squares big
+                            set(rectangle_parts(1:12),'marker','s')
+                        end
+                        
+                        %Constrain to within bounds and force constrained regions span the entire y-axis
+                        setPositionConstraintFcn(selected_obj,@(pos)obj.constrain_rect_imline(pos,obj.xbounds,obj.ybounds, closest_obj.constrain));
+                        %Update the event text when region is moved
+                        addNewPositionCallback(selected_obj,@(src,event)obj.update_event_text_imline(selected_obj, label_handle, true));
+                        
+                        if ~isempty(obj.eventMotionCallback)
+                            addNewPositionCallback(selected_obj,@(src,event)obj.eventMotionCallback(selected_obj, label_handle, true));
+                        end
+                        
+                        %Change the font of the label to show selected
+                        set(label_handle,'color',[0 0 0],'fontweight','bold','fontsize',obj.label_fontsize+3);
+                    else
+                        xpos=get(obj_handle,'xdata');
+                        xpos=xpos(1);
+                        
+                        %Create a selectable imline in the exact position
+                        selected_obj=imline(obj.main_ax,  [xpos obj.ybounds(1); xpos obj.ybounds(2)]);
+                        set(selected_obj,'UserData', obj_id);
+                        
+                        %Constrain line to stay in bounds and span y-axis
+                        setPositionConstraintFcn(selected_obj,@(pos)obj.constrain_line_imline(pos,obj.xbounds,obj.ybounds));
+                        %Update the text label
+                        addNewPositionCallback(selected_obj,@(src,event)obj.update_event_text_imline(selected_obj, label_handle, false));
+                        
+                        if ~isempty(obj.eventMotionCallback)
+                            addNewPositionCallback(selected_obj,@(src,event)obj.eventMotionCallback(selected_obj, label_handle, false));
+                        end
+                        
+                        %Set line width
+                        lineparts=get(selected_obj,'children');
+                        set(lineparts(4),'linewidth',1); %Set the mask width
+                        set(lineparts(3),'linewidth',5); %The main line width
+                        set(lineparts(1:2),'linewidth',2,'visible','off'); %The control point width
+                        set(lineparts,'color','k');
+                        
+                        %Change the font of the label to show selected
+                        set(label_handle,'color',[0 0 0],'fontweight','bold','fontsize',obj.label_fontsize+3);
+                    end
+                    obj.current_object=selected_obj;
+                    obj.current_object_ind=closest_ind;
+                else
+                    %Revert to the original view after double clicking off
+                    %the selection
+                    selected_object=obj.event_list(obj.current_object_ind);
+                    label_handle=selected_object.label_handle;
+                    obj_handle=selected_object.obj_handle;
+                    
+                    set(label_handle,'color',[0 0 0],'fontweight','normal','fontsize',obj.label_fontsize);
+                    
+                    if  selected_object.region
+                        %Update the region to the updated position
+                        set(obj_handle,'position',getPosition(obj.current_object));
+                    else
+                        newx=getPosition(obj.current_object);
+                        %Update the line to the updated position
+                        set(obj_handle,'xdata',[newx(1) newx(1)]);
+                    end
+                    
+                    %Delete the imrect
+                    delete(obj.current_object);
+                    obj.current_object=[];
+                    obj.current_object_ind=[];
+                    
+                    %Turn on the new position
+                    set(obj_handle,'visible','on');
+                end
+            end
+            
+            %Fix the pointer
+            set(gcf,'Pointer','arrow');
+        end
+        
+        %-----------------------------------------------------------
         %     UPDATE THE EVENT TEXT WHEN THE LINES ARE MOVED
         %-----------------------------------------------------------
         function update_event_text(~, imobject, label_handle, region)
@@ -483,8 +658,11 @@ classdef EventMarker < handle
             label_pos=get(label_handle,'position');
             
             %Get the text related to the line obj and move it
-            %             obj_pos=getPosition(imobject);
-            obj_pos = imobject.Position;
+            if obj.use_imline
+                obj_pos=getPosition(imobject);
+            else
+                obj_pos = imobject.Position;
+            end
             
             if region
                 obj_middle=mean([obj_pos(1) (obj_pos(1)+obj_pos(3))]);
@@ -496,6 +674,25 @@ classdef EventMarker < handle
             set(label_handle,'position',label_pos);
         end
         
+        %-----------------------------------------------------------
+        %     UPDATE THE EVENT TEXT WHEN THE LINES ARE MOVED
+        %-----------------------------------------------------------
+        function update_event_text_imline(~, imobject, label_handle, region)
+            %Get current labelposition
+            label_pos=get(label_handle,'position');
+            
+            %Get the text related to the line obj and move it
+            obj_pos=getPosition(imobject);
+            
+            if region
+                obj_middle=mean([obj_pos(1) (obj_pos(1)+obj_pos(3))]);
+            else
+                obj_middle=obj_pos(1,1);
+            end
+            
+            label_pos(1)=obj_middle;
+            set(label_handle,'position',label_pos);
+        end
         
         %-----------------------------------------------------------
         %     CONSTRAIN THE REGIONS TO FIT THE WHOLE AXIS
@@ -517,6 +714,26 @@ classdef EventMarker < handle
             obj_handle.Position = new_pos;
         end
         
+        
+        %-----------------------------------------------------------
+        %     CONSTRAIN THE REGIONS TO FIT THE WHOLE AXIS
+        %-----------------------------------------------------------
+        function new_pos=constrain_rect_imline(~, pos, xbounds, ybounds, constrain)
+            %New position
+            new_pos = pos;
+            
+            %Make sure object stays in bounds
+            new_pos(1)=min(max(pos(1),xbounds(1)), xbounds(2)-pos(3));
+            new_pos(2)=min(max(pos(2),ybounds(1)), ybounds(2)-pos(4));
+            
+            %Constrain to fill y axis for constrained regions
+            if constrain
+                new_pos(4)=diff(ybounds);
+                new_pos(2)=ybounds(1);
+            end
+        end
+        
+        
         %-----------------------------------------------------------
         %                 CONSTRAIN EVENT LINES
         %-----------------------------------------------------------
@@ -528,6 +745,21 @@ classdef EventMarker < handle
             new_pos(1,:)=min(max(pos(1,1),xbounds(1)), xbounds(2));
             %Set the height of the line to the y limits
             new_pos(:,2)=ybounds';
+        end
+        
+        
+        
+        %-----------------------------------------------------------
+        %                 CONSTRAIN EVENT LINES
+        %-----------------------------------------------------------
+        function new_pos=constrain_line_imline(~,pos, xbounds, ybounds)
+            %New position
+            new_pos=pos;
+            
+            %Make sure object stays in bounds
+            new_pos(:,1) = min(max(pos(1,1),xbounds(1)), xbounds(2));
+            %Set the height of the line to the y limits
+            new_pos(:,2) = ybounds';
         end
         
         %-----------------------------------------------------------
