@@ -23,6 +23,9 @@ classdef EventMarker < handle
         
         %callback for motion
         eventMotionCallback
+        
+        %ID of selected object
+        selected_ind = [];
     end
     
     %%%%%%%%%%%%%%%% private properties %%%%%%%%%%%%%%%%%%
@@ -35,7 +38,7 @@ classdef EventMarker < handle
         current_object=[]; %Current_object selected
         current_object_ind=[]; %Index of selected object
         
-        use_imline = ~exist('drawline','file');
+        use_imline = ~any(which('drawline.m'));
     end
     
     %%%%%%%%%%%%%%% public methods %%%%%%%%%%%%%%%%%%%%%%
@@ -335,7 +338,7 @@ classdef EventMarker < handle
             else
                 obj.check_double_click = [];
                 %disp('I am doing a double-click');
-                if obj.use_imline
+                if ~obj.use_imline
                     disp('Using drawrectangle');
                     edit_event(obj);
                 else
@@ -399,6 +402,8 @@ classdef EventMarker < handle
                     [~, ind]=min(abs(click_x(1)-object_bounds));
                     closest_ind=object_ind(ind);
                     closest_obj=obj.event_list(closest_ind);
+                    
+                    obj.selected_ind = closest_ind;
                     
                     %Get the object handle
                     obj_handle=closest_obj.obj_handle;
@@ -474,11 +479,12 @@ classdef EventMarker < handle
                     delete(obj.current_object);
                     obj.current_object=[];
                     obj.current_object_ind=[];
+                    obj.selected_ind = [];
                     
                     %Turn on the new position
                     set(obj_handle,'visible','on');
                 end
-            end
+            end   
             
             %Fix the pointer
             set(gcf,'Pointer','arrow');
@@ -537,6 +543,8 @@ classdef EventMarker < handle
                     [~, ind]=min(abs(click_x(1)-object_bounds));
                     closest_ind=object_ind(ind);
                     closest_obj=obj.event_list(closest_ind);
+                    
+                    obj.selected_ind = closest_ind;
                     
                     %Get the object handle
                     obj_handle=closest_obj.obj_handle;
@@ -640,11 +648,13 @@ classdef EventMarker < handle
                     delete(obj.current_object);
                     obj.current_object=[];
                     obj.current_object_ind=[];
+                    obj.selected_ind=[];
                     
                     %Turn on the new position
                     set(obj_handle,'visible','on');
                 end
             end
+  
             
             %Fix the pointer
             set(gcf,'Pointer','arrow');
@@ -653,7 +663,7 @@ classdef EventMarker < handle
         %-----------------------------------------------------------
         %     UPDATE THE EVENT TEXT WHEN THE LINES ARE MOVED
         %-----------------------------------------------------------
-        function update_event_text(~, imobject, label_handle, region)
+        function update_event_text(obj, imobject, label_handle, region)
             %Get current labelposition
             label_pos=get(label_handle,'position');
             
