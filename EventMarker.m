@@ -105,17 +105,16 @@ classdef EventMarker < handle
         function mark_event(obj, event_id, position)
             %Check for errors
             if isempty(obj.event_types)
-                warning('No event types to add');
-                return
-            else
-                if event_id>length(obj.event_types)
-                    warning('Invalid event type');
-                    return;
-                end
+                error('No event types to add');
+            end
+            
+            event_ind =[obj.event_types.type_ID]==event_id;
+            if ~any(event_ind)
+                error(['Event ID ' num2str(event_id) ' is invalid']);
             end
             
             %Create new event object
-            new_event=obj.event_types([obj.event_types.type_ID]==event_id);
+            new_event=obj.event_types(event_ind);
             
             %Check to see if the new event is a region or a single event
             if new_event.region
@@ -138,7 +137,7 @@ classdef EventMarker < handle
                 end
                 
                 %Create the rectangle
-                new_event.obj_handle=rectangle('parent',obj.main_ax,'position',rect_pos,'edgecolor',obj.colors(event_id,:),'linewidth',4);
+                new_event.obj_handle=rectangle('parent',obj.main_ax,'position',rect_pos,'edgecolor',obj.colors(event_ind,:),'linewidth',4);
                 
                 %Get the x-axis location for the text
                 obj_middle=mean([rect_pos(1) (rect_pos(1)+rect_pos(3))]);
@@ -339,11 +338,10 @@ classdef EventMarker < handle
                 obj.check_double_click = [];
                 %disp('I am doing a double-click');
                 if ~obj.use_imline
-                    disp('Using drawrectangle');
+                    %                     disp('Using drawrectangle');
                     edit_event(obj);
                 else
-                    
-                    disp('Using imline');
+                    %                     warning('Older version detected: Using imline');
                     edit_event_imline(obj);
                 end
             end
@@ -484,7 +482,7 @@ classdef EventMarker < handle
                     %Turn on the new position
                     set(obj_handle,'visible','on');
                 end
-            end   
+            end
             
             %Fix the pointer
             set(gcf,'Pointer','arrow');
@@ -654,7 +652,7 @@ classdef EventMarker < handle
                     set(obj_handle,'visible','on');
                 end
             end
-  
+            
             
             %Fix the pointer
             set(gcf,'Pointer','arrow');

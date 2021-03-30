@@ -25,9 +25,9 @@ ax=[ax em.main_ax, em.label_ax];
 
 %Add events
 %obj.add_event_type(EventObject(<event type name>, <event ID>, <region? vs. point>, <bounded to yaxis?>)
-em.add_event_type(EventObject('REM',1,true,true));
-em.add_event_type(EventObject('Eyes Closed',2,false));
-em.add_event_type(EventObject('Alpha',3,true,false));
+em.add_event_type(EventObject('REM',10,true,true));
+em.add_event_type(EventObject('Eyes Closed',3,false));
+em.add_event_type(EventObject('Alpha',5,true,false));
 em.add_event_type(EventObject('Arousal',4,false,false));
 
 %Scroll axes
@@ -54,13 +54,13 @@ end
 
 %Check for hotkeys pressed
 switch lower(event.Character)
-    case 'r'
-        em.mark_event(1);
-    case 'a'
+    case '1'
+        em.mark_event(10);
+    case '2'
         em.mark_event(3);
-    case 'e'
-        em.mark_event(2);
-    case 'w'
+    case '3'
+        em.mark_event(5);
+    case '4'
         em.mark_event(4);
         
 end
