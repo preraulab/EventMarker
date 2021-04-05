@@ -20,7 +20,7 @@ ax=figdesign(2,1,'margins',[.05,.1,.05,.05,.05]);
 
 %Plot image (spectrogram)
 subplot(ax(1))
-imagesc(stimes,sfreqs,pow2db(spect'));
+imagesc(stimes,sfreqs,pow2db(spect));
 axis xy
 xbounds=stimes([1 end]);
 ybounds=sfreqs([1 end]);
