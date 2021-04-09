@@ -99,10 +99,23 @@ classdef EventMarker < handle
             end
         end
         
+        
+        %-----------------------------------------------------------
+        %               GET EVENT LIST
+        %-----------------------------------------------------------
+        function [etimes, etypes, eIDs] = get_events(obj)
+            etypes = [obj.event_list.type_ID];
+            eIDs = [obj.event_list.event_ID];
+            etimes_raw = cellfun(@(x)x.XData(1),{obj.event_list.obj_handle});
+            [etimes, inds]= sort(etimes_raw);
+            etypes = etypes(inds);
+            eIDs = eIDs(inds);
+        end
+        
         %-----------------------------------------------------------
         %                CREATE REGIONS
         %-----------------------------------------------------------
-        function mark_event(obj, event_id, position)
+        function new_event = mark_event(obj, event_id, position)
             %Check for errors
             if isempty(obj.event_types)
                 error('No event types to add');
@@ -779,20 +792,24 @@ classdef EventMarker < handle
             
             pos = zeros(num_clicks, 2);
             
-            iptPointerManager(h_fig);
-            iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'cross'));
+%             iptPointerManager(h_fig);
+%             iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'cross'));
             
             clicks = 0;
             while clicks<num_clicks
-                w = waitforbuttonpress;
-                if ~w
-                    clicks = clicks + 1;
-                    p = get(h_ax,'CurrentPoint');
-                    pos(clicks,:) = p(1,1:2);
-                end
+                
+                pos = ginput(1);
+                clicks=clicks+1;
+                %                 w = waitforbuttonpress;
+                %
+                %                 if ~w
+                %                     clicks = clicks + 1;
+                %
+                %                     pos(clicks,:) = p(1,1:2);
+                %                 end
             end
             
-            iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'arrow'));
+%             iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'arrow'));
         end
         
     end
