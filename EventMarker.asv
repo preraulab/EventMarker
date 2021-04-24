@@ -103,16 +103,14 @@ classdef EventMarker < handle
         %-----------------------------------------------------------
         %               GET EVENT LIST
         %-----------------------------------------------------------
-        function [etimes, etypes, eIDs, isregion] = get_events(obj)
+        function [etimes, etypes, eIDs] = get_events(obj)
             etypes = [obj.event_list.type_ID];
             eIDs = [obj.event_list.event_ID];
-            isregion = [obj.event_list.region];
-            etimes_raw = cellfun(@(x)x.XData(1),{obj.event_list(~isregion).obj_handle});
-            etimes_raw = [etimes_raw cellfun(@(x)x.Position(1),{obj.event_list(isregion).obj_handle})];
+            region_inds = [obj.event_list.region];
+            etimes_raw = cellfun(@(x)x.XData(1),{obj.event_list(~region_inds).obj_handle});
             [etimes, inds]= sort(etimes_raw);
             etypes = etypes(inds);
             eIDs = eIDs(inds);
-            isregion = isregion(inds);
         end
         
         %-----------------------------------------------------------
