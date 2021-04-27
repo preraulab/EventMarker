@@ -50,6 +50,11 @@ classdef EventMarker < handle
         
         %obj = EventMarker(event_axis, xbounds, ybounds, event_types, event_list, line_colors, font_size, motioncallback)
         function obj = EventMarker(varargin)
+            %Check for image processing toolbox
+            if ~license('test','image_toolbox')
+                error('The Image Processing Toolbox is required to run EventMarker');               
+            end
+
             %Set up default param values
             args={gca, xlim(gca), ylim(gca), [], [], get(gca,'colororder'), 12, []};
             args(~cellfun('isempty',varargin)) = varargin(~cellfun('isempty',varargin));
