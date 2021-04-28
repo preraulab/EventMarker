@@ -1,4 +1,4 @@
-function basic_viewer()
+function em = basic_viewer()
 ccc
 
 %Create figure
@@ -31,7 +31,7 @@ em.add_event_type(EventObject('Alpha',5,true,false));
 em.add_event_type(EventObject('Arousal',4,false,false));
 
 %Scroll axes
-scrollzoompan(ax);
+scrollzoompan(ax(1));
 
 set(f,'KeyPressFcn',@(src,event)handle_keys(event,em),'units','normalized','position',[0 0 1 1],'visible','on');
 linkaxes(ax,'x');

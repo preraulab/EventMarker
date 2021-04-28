@@ -13,7 +13,7 @@ classdef EventMarker < handle
         event_types
         
         %List of added events
-        event_list
+        event_list = [];
         
         %Colors for the different selections
         colors
@@ -52,9 +52,9 @@ classdef EventMarker < handle
         function obj = EventMarker(varargin)
             %Check for image processing toolbox
             if ~license('test','image_toolbox')
-                error('The Image Processing Toolbox is required to run EventMarker');               
+                error('The Image Processing Toolbox is required to run EventMarker');
             end
-
+            
             %Set up default param values
             args={gca, xlim(gca), ylim(gca), [], [], get(gca,'colororder'), 12, []};
             args(~cellfun('isempty',varargin)) = varargin(~cellfun('isempty',varargin));
@@ -121,23 +121,31 @@ classdef EventMarker < handle
         end
         
         %-----------------------------------------------------------
-        %                CREATE REGIONS
+        %                    MARK EVENT
         %-----------------------------------------------------------
-        function new_event = mark_event(obj, event_id, position)
+        function new_event = mark_event(obj, varargin)
+            if length(varargin) == 2
+                obj.mark_events(varargin{:});
+                return;
+            else
+                event_type_id = varargin{1};
+            end
+            
+            
             %Check for errors
             if isempty(obj.event_types)
                 error('No event types to add');
             end
             
-            event_ind =[obj.event_types.type_ID]==event_id;
+            event_ind =[obj.event_types.type_ID]==event_type_id;
             if ~any(event_ind)
-                error(['Event ID ' num2str(event_id) ' is invalid']);
+                error(['Event ID ' num2str(event_type_id) ' is invalid']);
             end
             
             %Create new event object
             new_event=obj.event_types(event_ind);
             
-            %Check to see if the new event is a region or a single event
+            %Check to see if the new event is a region or a single-time event
             if new_event.region
                 %Get data if event is being user defined
                 if nargin<3
@@ -162,7 +170,7 @@ classdef EventMarker < handle
                 
                 %Get the x-axis location for the text
                 obj_middle=mean([rect_pos(1) (rect_pos(1)+rect_pos(3))]);
-            else %If new event is a single event
+            else %If new event is a single-time event
                 
                 %Get data if event is being user defined
                 if nargin<3
@@ -178,15 +186,16 @@ classdef EventMarker < handle
                 line_x=[xpos xpos];
                 line_y=ylim(obj.main_ax);
                 %Create a vertical line
-                new_event.obj_handle=line(line_x,line_y,'parent',obj.main_ax,'color',obj.colors(event_id,:),'linewidth',4);
+                new_event.obj_handle=line(line_x,line_y,'parent',obj.main_ax,'color',obj.colors(event_type_id,:),'linewidth',4);
                 
                 %Get the x-axis location for the text
                 obj_middle=xpos;
             end
             
             %Create text object
-            axes(obj.label_ax);
-            new_event.label_handle=text(obj_middle,0,new_event.name,'fontsize',obj.label_fontsize,'verticalalignment','top','color','k','horizontalalignment','center');
+            if ~isempty(new_event.name)
+                new_event.label_handle=text(obj.label_ax, obj_middle,0,new_event.name,'fontsize',obj.label_fontsize,'verticalalignment','top','color','k','horizontalalignment','center');
+            end
             
             if new_event.region
                 %set(new_event.label_handle,'edgecolor','k'); Uncomment for box
@@ -195,8 +204,8 @@ classdef EventMarker < handle
                 end
             end
             
-            %Create event ID
-            new_event.event_ID = length(obj.event_list) + 1 + 10000;
+            %Create random event ID
+            new_event.event_ID = randi(intmax);
             
             %Add the new line to the obj
             obj.event_list=[obj.event_list new_event];
@@ -204,6 +213,80 @@ classdef EventMarker < handle
             %Revert to original cursor
             set(gcf,'Pointer','arrow');
         end
+        
+        %-----------------------------------------------------------
+        %                  MARK LOTS OF EVENTS
+        %-----------------------------------------------------------
+        function new_event = mark_events(obj, event_type_id, position)
+            %Check for errors
+            if isempty(obj.event_types)
+                error('No event types to add');
+            end
+            
+            event_ind =[obj.event_types.type_ID]==event_type_id;
+            if ~any(event_ind)
+                error(['Event ID ' num2str(event_type_id) ' is invalid']);
+            end
+            
+            num_events = size(position,1);
+            old_list_size = length(obj.event_list);
+            
+            if ~isempty(obj.event_list)
+            obj.event_list(old_list_size + num_events) = nan;
+            end
+            
+            for ii = 1:num_events
+                %Create new event object
+                new_event=obj.event_types(event_ind);
+                
+                %Check to see if the new event is a region or a single-time event
+                if new_event.region
+                    rect_pos=position(ii,:);
+                    
+                    
+                    %Create the rectangle
+                    new_event.obj_handle=rectangle('parent',obj.main_ax,'position',rect_pos,'edgecolor',obj.colors(event_ind,:),'linewidth',4);
+                
+                    %Get the x-axis location for the text
+                    obj_middle=mean([rect_pos(1) (rect_pos(1)+rect_pos(3))]);
+                else %If new event is a single-time event
+                    
+                    xpos=position(ii,1);
+                    
+                    %Create the vertical line
+                    line_x=[xpos xpos];
+                    line_y=ylim(obj.main_ax);
+                    %Create a vertical line
+                    new_event.obj_handle=line(line_x,line_y,'parent',obj.main_ax,'color',obj.colors(event_type_id,:),'linewidth',4);
+                    
+                    %Get the x-axis location for the text
+                    obj_middle=xpos;
+                end
+                
+                %Create text object
+                if ~isempty(new_event.name)
+                    new_event.label_handle=text(obj.label_ax, obj_middle,0,new_event.name,'fontsize',obj.label_fontsize,'verticalalignment','top','color','k','horizontalalignment','center');
+                end
+                
+                if new_event.region
+                    %set(new_event.label_handle,'edgecolor','k'); Uncomment for box
+                    if new_event.constrain
+                        set(new_event.label_handle,'verticalalignment','bottom');
+                    end
+                end
+                
+                %Create random event ID
+                new_event.event_ID = randi(intmax);
+                
+                %Add the new line to the obj
+                if isempty(obj.event_list)
+                    obj.event_list = new_event;
+                else
+                    obj.event_list(old_list_size + ii)= new_event;
+                end
+            end
+        end
+        
         
         %-----------------------------------------------------------
         %             DELETE SELECTED EVENT
@@ -253,7 +336,7 @@ classdef EventMarker < handle
             %Extract the positional information from each object
             for type = 1:length(obj.event_types)
                 %Find the indices of the events with the given type
-                type_inds = find(strcmpi({obj.event_list.name},obj.event_types(type).name));
+                type_inds = find(([obj.event_list.type_ID] == obj.event_types(type).type_ID));
                 
                 %Loop through the events of the given type
                 for eventnum = 1:length(type_inds)
@@ -310,12 +393,18 @@ classdef EventMarker < handle
             
             if exist('event_types','var') && exist('event_data','var')
                 
-                for i=1:length(obj.event_types)
-                    for j=1:size(event_data{i},1)
+                for ii=1:length(obj.event_types)
+                    if obj.event_types(ii).region
+                        position = zeros(size(event_data{ii},1),4);
+                    else
+                        position = zeros(size(event_data{ii},1),1);
+                    end
+                    
+                    for j=1:size(event_data{ii},1)
                         %Get the position
-                        position=event_data{i}(j,:);
-                        if obj.event_types(i).region
-                            if obj.event_types(i).constrain
+                        position(ii,:)=event_data{ii}(j,:);
+                        if obj.event_types(ii).region
+                            if obj.event_types(ii).constrain
                                 %Reconstruct for constrained region
                                 newpos(1)=min(position(1:2));
                                 newpos(2)=min(obj.ybounds);
@@ -330,11 +419,11 @@ classdef EventMarker < handle
                             end
                             
                             %Use as the new position
-                            position=newpos;
+                            position(ii,:)=newpos;
                         end
-                        mark_event(obj, obj.event_types(i).type_ID, position);
                     end
                 end
+                mark_event(obj, obj.event_types(ii).type_ID, position);
             else
                 error('Invalid File');
             end
@@ -350,7 +439,7 @@ classdef EventMarker < handle
                 get(gcbo,'CurrentPoint');
                 
                 %Add a delay to distinguish single click from a double click
-                pause(0.2);
+                pause(0.5);
                 if obj.check_double_click == 1
                     %disp('I am doing a single-click');
                     obj.check_double_click = [];
