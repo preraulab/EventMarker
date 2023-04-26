@@ -1,7 +1,9 @@
 function EEG_marked_viewer(data, Fs, frequency_range, taper_params, window_params, min_NFFT, detrend_opt, plot_on, verbose)
+
 if nargin==0
-    data=randn(1,10000);
     Fs=200;
+    N = Fs*60*30;
+    data=randn(1,N);
     frequency_range = [];
     taper_params = [];
     window_params = [];
@@ -80,6 +82,14 @@ switch lower(event.Character)
         em.mark_event(2);
     case 'o'
         em.mark_event(4);
-        
+    case ' '
+        prompt = {'Enter annotation text:','Enter annotation time:'};
+        dlgtitle = 'Annotation Input';
+        dims = [1 40];
+        definput = {' ','0'};
+        answer = inputdlg(prompt,dlgtitle,dims,definput);
+
+        em.add_annotation(answer{1}, str2double(answer{2}));
+
 end
 

@@ -21,6 +21,7 @@ plot(randn(1,1000));
 em=EventMarker(ax(1),xbounds, ybounds);
 
 %Add the main and label axes to the axis vector
+
 ax=[ax em.main_ax, em.label_ax];
 
 %Add events
@@ -62,6 +63,13 @@ switch lower(event.Character)
         em.mark_event(5);
     case '4'
         em.mark_event(4);
-        
+    case ' '
+        prompt = {'Enter annotation text:','Enter annotation time:'};
+        dlgtitle = 'Annotation Input';
+        dims = [1 40];
+        definput = {' ','0'};
+        answer = inputdlg(prompt,dlgtitle,dims,definput);
+
+        em.add_annotation(answer{1}, str2double(answer{2}));
 end
 
