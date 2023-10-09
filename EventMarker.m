@@ -39,6 +39,10 @@ classdef EventMarker < handle
         current_object_ind=[]; %Index of selected object
 
         use_imline = ~any(which('drawline.m'));
+
+        adding_points = false;
+        num_clicks = 0;
+        mouse_point;
     end
 
     %%%%%%%%%%%%%%% public methods %%%%%%%%%%%%%%%%%%%%%%
@@ -308,7 +312,7 @@ classdef EventMarker < handle
 
             %Create text object
             new_event.label_handle=text(obj.label_ax, obj_middle,0,new_event.name,'fontsize',obj.label_fontsize,'verticalalignment','top','color','k','horizontalalignment','center');
-            
+
             %Add the new line to the obj
             obj.event_list=[obj.event_list new_event];
         end
@@ -460,12 +464,19 @@ classdef EventMarker < handle
         %              HANDLE MOUSE EVENTS
         %-----------------------------------------------------------
         function clickcallback(obj, varargin)
+            %Save clicks for adding points
+            if obj.adding_points
+                cp = get(gca,'CurrentPoint');
+                obj.mouse_point = cp(1,1:2);
+            end
+
+            %Handle clicks for selecting objects
             if isempty(obj.check_double_click)
                 obj.check_double_click = 1;
                 get(gcbo,'CurrentPoint');
 
                 %Add a delay to distinguish single click from a double click
-                pause(0.5);
+                pause(0.4);
                 if obj.check_double_click == 1
                     %disp('I am doing a single-click');
                     obj.check_double_click = [];
@@ -481,6 +492,8 @@ classdef EventMarker < handle
                     edit_event_imline(obj);
                 end
             end
+
+            uiresume(obj.main_fig);
         end
 
         %-----------------------------------------------------------
@@ -911,29 +924,25 @@ classdef EventMarker < handle
         %-----------------------------------------------------------
         function pos = get_clicks(obj, num_clicks)
             h_fig = obj.main_fig;
-            h_ax = obj.main_ax;
+            % h_ax = obj.main_ax;
 
-            pos = zeros(num_clicks, 2);
+            obj.adding_points = true;
+            obj.num_clicks = 0;
 
-            %             iptPointerManager(h_fig);
-            %             iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'cross'));
-
-            clicks = 0;
             pos = zeros(num_clicks,2);
-            while clicks<num_clicks
+            % disp(num_clicks)
 
-                [pos(clicks+1,1), pos(clicks+1,2)] = ginput(1);
-                clicks=clicks+1;
-                %                 w = waitforbuttonpress;
-                %
-                %                 if ~w
-                %                     clicks = clicks + 1;
-                %
-                %                     pos(clicks,:) = p(1,1:2);
-                %                 end
+            set(h_fig, 'Pointer', 'crosshair');
+            for ii = 1:num_clicks
+                % disp('waiting')
+                uiwait(obj.main_fig);
+                pos(ii,:) = obj.mouse_point;
+                % disp(pos)
+                % disp('resumed')
             end
+        
+            set(h_fig, 'Pointer', 'arrow');
 
-            %             iptSetPointerBehavior(h_ax, @(h_fig, currentPoint)set(h_fig, 'Pointer', 'arrow'));
         end
 
     end
