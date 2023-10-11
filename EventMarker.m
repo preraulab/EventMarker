@@ -395,7 +395,7 @@ classdef EventMarker < handle
                 end
             end
 
-            event_types = obj.event_types;
+            event_types = obj.event_types; %#ok<PROPLC>
 
             %Save position and event type data
             if nargin == 1 || isempty(fname)
@@ -412,7 +412,7 @@ classdef EventMarker < handle
 
             if nargin<2 || isempty(fname)
                 [filename, pathname] = uigetfile('*.mat','Select Event File');
-                load(fullfile(pathname,filename));
+                load(fullfile(pathname,filename)); %#ok<*LOAD>
             else
                 if exist(fname,'file')
                     load(fname);
@@ -425,7 +425,7 @@ classdef EventMarker < handle
 
                 for ii=1:length(obj.event_types)
                     if obj.event_types(ii).region
-                        position = zeros(size(event_data{ii},1),4);
+                        position = zeros(size(event_data{ii},1),4); %#ok<USENS>
                     else
                         position = zeros(size(event_data{ii},1),1);
                     end
@@ -476,7 +476,7 @@ classdef EventMarker < handle
                 get(gcbo,'CurrentPoint');
 
                 %Add a delay to distinguish single click from a double click
-                pause(0.4);
+                pause(0.5);
                 if obj.check_double_click == 1
                     %disp('I am doing a single-click');
                     obj.check_double_click = [];
@@ -515,39 +515,22 @@ classdef EventMarker < handle
                     %Find the closest region
                     c=1;%Counter
 
+                    closest_ind = inf;
+                    min_dist = inf;
+
+                    vis_inds = strcmp(get([obj.event_list.obj_handle],'visible'),'on');
+
                     %Grab object bounds
-                    for i=1:length(obj.event_list)
-                        %Check event object
-                        check_obj=obj.event_list(i);
-
-                        %Handle region and line separately
-                        if check_obj.region
-                            %Get the xpositions
-                            event_pos=get(check_obj.obj_handle,'position');
-
-                            %Get the region left bound
-                            object_bounds(c)=event_pos(1);
-                            %Save index into event_list
-                            object_ind(c)=i;
-
-                            %Get the region right bound
-                            object_bounds(c+1)=event_pos(1)+event_pos(3);
-                            %Save index into event_list
-                            object_ind(c+1)=i;
-                            c=c+2;
-                        else
-                            %Get the xpositions
-                            event_pos=get(check_obj.obj_handle,'xdata');
-                            %Get the x-value of the vertical line
-                            object_bounds(c)=event_pos(1);
-                            object_ind(c)=i;
-                            c=c+1;
+                    for ii=1:length(obj.event_list)
+                        if vis_inds(ii)
+                            test_dist = min(abs(click_x(1)-obj.event_list(ii).time_bounds));
+                            if test_dist<min_dist
+                                min_dist = test_dist;
+                                closest_ind = ii;
+                            end
                         end
                     end
 
-                    %Get closest regional bounds to click
-                    [~, ind]=min(abs(click_x(1)-object_bounds));
-                    closest_ind=object_ind(ind);
                     closest_obj=obj.event_list(closest_ind);
 
                     obj.selected_ind = closest_ind;
@@ -924,23 +907,18 @@ classdef EventMarker < handle
         %-----------------------------------------------------------
         function pos = get_clicks(obj, num_clicks)
             h_fig = obj.main_fig;
-            % h_ax = obj.main_ax;
 
             obj.adding_points = true;
             obj.num_clicks = 0;
 
             pos = zeros(num_clicks,2);
-            % disp(num_clicks)
 
             set(h_fig, 'Pointer', 'crosshair');
             for ii = 1:num_clicks
-                % disp('waiting')
                 uiwait(obj.main_fig);
                 pos(ii,:) = obj.mouse_point;
-                % disp(pos)
-                % disp('resumed')
             end
-        
+
             set(h_fig, 'Pointer', 'arrow');
 
         end
