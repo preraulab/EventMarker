@@ -1,4 +1,47 @@
 classdef EventMarker < handle
+% EventMarker - A class for creating and managing event markers in a plot
+%
+%   Usage:
+%       obj = EventMarker(event_axis, xbounds, ybounds, event_types, event_list, line_colors, font_size, motioncallback)
+%
+%   Input:
+%       event_axis: Handle to the axis with markers
+%       xbounds: Bounds on area placement
+%       ybounds: Bounds on area placement
+%       event_types: List of types of events
+%       event_list: List of added events and annotations
+%       line_colors: Colors for different selections
+%       font_size: Font size for labels
+%       motioncallback: Callback for motion
+%
+%   Properties (Access = public):
+%       main_ax: Axis with markers
+%       label_ax: Axis with labels
+%       xbounds: Bounds on area placement
+%       ybounds: Bounds on area placement
+%       event_types: List of types of events
+%       event_list: List of added events and annotations
+%       colors: Colors for different selections
+%       label_fontsize: Font size for labels
+%       eventMotionCallback: Callback for motion
+%       selected_ind: ID of selected object
+%
+%   Methods (Access = public):
+%       add_event_type: Add a new event type to the list
+%       get_events: Get information about added events
+%       mark_event: Mark a single event or region
+%       mark_events: Mark multiple events of the same type
+%       add_annotation: Add an annotation to the plot
+%       delete_selected: Delete the selected object
+%       save: Save the event data to a file
+%       load: Load event data from a file
+%
+% Example:
+%   See basic_viewer.m
+%
+% Copyright 2023 Michael J. Prerau Laboratory. - http://www.sleepEEG.org
+% ********************************************************************
+
 
     %%%%%%%%%%%%%%%% public properties %%%%%%%%%%%%%%%%%%
     properties (Access = public)

@@ -1,4 +1,27 @@
 classdef EventObject
+% EventObject - A class representing an event object for use with EventMarker
+%
+%   Usage:
+%       obj = EventObject(name, type_ID, region, constrain)
+%
+%   Properties (Access = public):
+%       name: Text name of the event type
+%       type_ID: Event type ID
+%       region: Boolean indicating if it's a region (default: false)
+%       event_ID: Unique event ID
+%       constrain: If a region, allows for vertical constraint (default: true)
+%       obj_handle: Handle to the graphical object representing the event
+%       label_handle: Handle to the text label associated with the event
+%
+%   Methods (Access = public):
+%       EventObject: Constructor for creating an EventObject
+%       time_bounds: Get the time bounds of the event object
+%
+% Example:
+%   see basic_viewer.m
+%
+% Copyright 2023 Michael J. Prerau Laboratory. - http://www.sleepEEG.org
+% ********************************************************************
 
     %%%%%%%%%%%%%%%% public properties %%%%%%%%%%%%%%%%%%
     properties (Access = public)
