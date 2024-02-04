@@ -39,7 +39,7 @@ classdef EventMarker < handle
 % Example:
 %   See basic_viewer.m
 %
-% Copyright 2023 Michael J. Prerau Laboratory. - http://www.sleepEEG.org
+% Copyright 2024 Michael J. Prerau Laboratory. - http://www.sleepEEG.org
 % ********************************************************************
 
 
