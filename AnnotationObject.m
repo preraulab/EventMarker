@@ -24,32 +24,26 @@ classdef AnnotationObject < EventObject
 % Copyright 2024 Michael J. Prerau Laboratory. - http://www.sleepEEG.org
 % ********************************************************************    
 
-    %%%%%%%%%%%%%%%% public properties %%%%%%%%%%%%%%%%%%
-    properties (Access = public)
-        
-    end
-    
-    %%%%%%%%%%%%%%% protected methods %%%%%%%%%%%%%%%%%%%%%%
     methods (Access = public)
-        
+
         %***********************************************
         %             CONSTRUCTOR METHOD
         %***********************************************
-        
-        function obj=AnnotationObject(text)
-            %Set up default param values
-            new_id=round(now);
-            
+        function obj = AnnotationObject(text)
+
+            new_id = char(java.util.UUID.randomUUID());
+
             if nargin > 0
                 obj.name = text;
             else
                 obj.name = ['Annot_' num2str(new_id)];
             end
 
-            obj.region = false;
+            obj.region    = false;
             obj.constrain = true;
-            obj.type_ID = -99;
-            obj.event_ID = new_id;
+            obj.type_ID   = -99;
+            obj.event_ID  = new_id;
         end
+
     end
 end
