@@ -41,6 +41,7 @@ classdef EventObject
         constrain       % Logical: vertically constrain regions to axis limits
         obj_handle = [] % Graphics handle of the placed event
         label_handle = [] % Handle to the text label
+        isEditable = true % Allows an object to be edited
     end
 
     %%%%%%%%%%%%%%% PUBLIC METHODS %%%%%%%%%%%%%%%%%%%%%%
@@ -61,12 +62,12 @@ classdef EventObject
             %   constrain - Logical for vertical constraint of regions (default: true)
 
             % Generate unique instance ID using UUID
-            unique_str = char(java.util.UUID.randomUUID());
+            unique_str = randi(intmax);
 
             % Default arguments
-            args = {['object_' unique_str], unique_str, false, true};
+            args = {['object_' unique_str], unique_str, false, true, true};
             args(1:numel(varargin)) = varargin;
-            [obj.name, obj.type_ID, obj.region, obj.constrain] = args{:};
+            [obj.name, obj.type_ID, obj.region, obj.constrain, obj.isEditable] = args{:};
 
             % Validate type_ID is integer
             assert(floor(obj.type_ID) == obj.type_ID, ...

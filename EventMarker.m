@@ -50,8 +50,8 @@ classdef EventMarker < handle
         label_ax        % Invisible overlay axes holding text labels
         xbounds         % [xmin xmax] limits constraining marker placement
         ybounds         % [ymin ymax] limits constraining marker placement
-        event_types     % Array of event type definition structures
-        event_list = -99; % Array of placed event objects (initialized to flag empty state)
+        event_types  = EventObject.empty;    % Array of event type definition structures
+        event_list = EventObject.empty; % Array of placed event objects (initialized to flag empty state)
         colors          % Nx3 matrix of colors corresponding to event_types
         label_fontsize  % Font size for event name labels
         selected_ind = [] % Index of currently selected/edited event
@@ -343,8 +343,23 @@ classdef EventMarker < handle
             % Inputs:
             %   annotation_text - String to display
             %   time            - Optional x-position (interactive click if omitted)
+
+            if iscell(annotation_text) || (~isStringScalar(annotation_text) && isstring(annotation_text))
+                assert(length(annotation_text) == length(time), 'Length mismatch between annotation text cell and time vector');
+
+                for ii = 1:length(annotation_text)
+                    obj.add_annotation(annotation_text{ii}, time(ii));
+                end
+                return;
+            end
             
-            new_event = AnnotationObject(annotation_text);
+            new_event = EventObject;
+            new_event.name = annotation_text; 
+            new_event.region    = false;
+            new_event.constrain = true;
+            new_event.type_ID   = -99;
+            new_event.event_ID  = randi(intmax);
+            new_event.isEditable = false;
             
             if nargin < 3
                 obj.get_clicks(1);
@@ -574,6 +589,10 @@ classdef EventMarker < handle
                 min_dist = inf;
                 closest_ind = [];
                 for ii = 1:numel(obj.event_list)
+                    if ~obj.event_list(ii).isEditable
+                        continue;
+                    end
+
                     tb = obj.event_list(ii).time_bounds();
                     if isdatetime(tb)
                         tb = obj.dt2pos(tb);
