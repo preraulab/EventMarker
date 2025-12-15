@@ -48,7 +48,7 @@ fprintf('==============================\n\n');
 f = figure('Color', 'w', 'Visible', 'on', 'Units', 'normalized');
 
 % Create two axes with custom layout (assuming figdesign helper exists)
-ax = figdesign(2, 1, 'margins', [.05, .15, .05, .05, .05]);
+ax = figdesign(2, 1, 'orient','landscape','type','usletter','margins', [.05, .15, .1, .05, .05]);
 
 N = 60 * 8;  % 8 hours of minutes
 x = datetime('12-Dec-2025 22:15:20') + minutes(1:N);
@@ -62,12 +62,21 @@ suptitle('Spectrogram')
 
 % Bottom panel: time-domain signal
 subplot(ax(2))
-plot(x, randn(1, N));
+numsigs = 4;
+t = linspace(x(1), x(end),1000);
+y = randn(1000,numsigs);
+
+offset = 3*max(var(y)); % vertical spacing
+y_offset = y + (0:size(y,2)-1)*offset;
+
+plot(t, y_offset, 'LineWidth', 1)
 axis tight
+xlabel('Time')
+yticks((0:3)*offset)
+yticklabels({'Ch 1','Ch 2','Ch 3','Ch 4'})
+grid on
 title('Time Series')
 
-% Link x-axes for synchronized zooming/panning
-linkaxes(ax, 'x');
 
 %************************************************************
 % INITIALIZE EVENTMARKER

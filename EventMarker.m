@@ -84,12 +84,20 @@ classdef EventMarker < handle
             %   line_colors, font_size (optional; defaults provided)
             
             % Default arguments
-            args = {gca, [], [], [], [], get(gca,'ColorOrder'), 12};
+            args = {[], [], [], [], [], [], 12};
             % Override defaults with provided non-empty inputs
             args(~cellfun('isempty', varargin)) = varargin(~cellfun('isempty', varargin));
             [obj.main_ax, obj.xbounds, obj.ybounds, obj.event_types, ...
              obj.event_list, obj.colors, obj.label_fontsize] = args{:};
             
+            if isempty(obj.main_ax)
+                obj.main_ax = gca;
+            end
+
+            if isempty(obj.colors)
+                obj.colors = get(obj.main_ax,'ColorOrder');
+            end
+
             % Use axis limits if bounds not provided
             if isempty(obj.xbounds)
                 obj.xbounds = obj.main_ax.XLim;
