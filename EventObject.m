@@ -22,7 +22,6 @@ classdef EventObject
     %   See also: EventMarker, DateTimeLine, DateTimeRectangle
     %
     %   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
-    %        Source: https://github.com/preraulab/labcode_main
 
     %************************************************************
     % PROPERTIES

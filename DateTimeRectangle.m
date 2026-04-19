@@ -40,7 +40,6 @@ classdef DateTimeRectangle < handle
 %   See also: DateTimeLine, EventMarker
 %
 %   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
-%        Source: https://github.com/preraulab/labcode_main
 
     %% ======================== PUBLIC PROPERTIES ========================
     properties (Access = public)

@@ -29,7 +29,6 @@
 %   See also: EventMarker, EventObject, DateTimeLine, DateTimeRectangle
 %
 %   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
-%        Source: https://github.com/preraulab/labcode_main
 clear all;
 close all;
 
