@@ -1,29 +1,35 @@
-% basic_viewer - Example viewer demonstrating EventMarker usage
+%BASIC_VIEWER  Example viewer script demonstrating EventMarker usage
 %
-% This function creates a simple two-panel figure with a spectrogram-like
-% image on top and a time-series plot below. It initializes an EventMarker
-% object on the top axes for interactive event marking (regions and points).
+%   Usage:
+%       basic_viewer
 %
-% Features demonstrated:
-% - Adding event types (regions and points)
-% - Interactive marking via hotkeys
-% - Deleting selected events (Backspace/Delete)
-% - Adding free-text annotations (Space bar)
-% - Save/Load events via menu
-% - Linked scrolling/zooming/panning
+%   Inputs:
+%       none
 %
-% Hotkeys (printed to command window on startup):
-%   1 - Mark REM region (constrained full-height)
-%   2 - Mark Eyes Closed point
-%   3 - Mark Alpha region (unconstrained height)
-%   4 - Mark Arousal point
-%   Space - Add text annotation
-%   Backspace/Delete - Delete selected event (after double-click selection)
-%   Ctrl+S - Save events
-%   Ctrl+L - Load events
+%   Outputs:
+%       none (side effects only — opens a demo figure)
 %
-% Copyright 2024 Michael J. Prerau Laboratory - http://www.sleepEEG.org
-% ********************************************************************
+%   Notes:
+%       Creates a two-panel figure (image on top, time-series below) and
+%       installs an EventMarker on the top axes. Demonstrates adding event
+%       types, interactive marking via hotkeys, deleting selected events,
+%       adding free-text annotations, save/load via menu, and linked
+%       scroll/zoom/pan.
+%
+%       Hotkeys (printed to command window on startup):
+%           1     - Mark REM region (constrained full-height)
+%           2     - Mark Eyes Closed point
+%           3     - Mark Alpha region (unconstrained height)
+%           4     - Mark Arousal point
+%           Space - Add text annotation
+%           Backspace/Delete - Delete selected event
+%           Ctrl+S - Save events
+%           Ctrl+L - Load events
+%
+%   See also: EventMarker, EventObject, DateTimeLine, DateTimeRectangle
+%
+%   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
+%        Source: https://github.com/preraulab/labcode_main
 clear all;
 close all;
 

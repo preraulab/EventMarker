@@ -1,28 +1,35 @@
 classdef DateTimeLine < handle
-    % DateTimeLine - Interactive draggable line segment supporting datetime axes
+    %DATETIMELINE  Interactive draggable line segment supporting datetime axes
     %
-    % This class implements an interactive line segment defined by two endpoints
-    % that can be dragged independently or together. The line supports both numeric
-    % and datetime x-axes seamlessly. Endpoint handles allow precise positioning.
+    %   Usage:
+    %       ln = DateTimeLine(ax, pos, callback)
+    %       ln = DateTimeLine(ax, pos, callback, 'Name', Value, ...)
     %
-    % Position struct:
-    % pos.x1 : datetime or double (first endpoint x)
-    % pos.y1 : double (first endpoint y)
-    % pos.x2 : datetime or double (second endpoint x)
-    % pos.y2 : double (second endpoint y)
+    %   Inputs:
+    %       ax       : axes handle - target axes -- required
+    %       pos      : struct with fields x1, y1, x2, y2 (datetime or double) -- required
+    %       callback : function handle - called after every position change -- required
     %
-    % Observable appearance properties automatically update the graphics:
-    % LineColor, LineWidth, HandleSize
+    %   Outputs:
+    %       ln : DateTimeLine handle object
     %
-    % Example:
-    % ax = axes;
-    % plot(ax, datetime(2023,1,1)+days(0:100), rand(1,101));
-    % pos.x1 = datetime(2023,1,10); pos.y1 = 0.2;
-    % pos.x2 = datetime(2023,1,30); pos.y2 = 0.8;
-    % ln = DateTimeLine(ax, pos, @(p)disp(p));
+    %   Notes:
+    %       Supports numeric and datetime x-axes. Two endpoint handles allow
+    %       precise positioning; dragging the line body moves both together.
+    %       Observable appearance properties (LineColor, LineWidth, HandleSize)
+    %       update the graphics automatically when modified.
     %
-    % Copyright 2024 Michael J. Prerau Laboratory - http://www.sleepEEG.org
-    % ********************************************************************
+    %   Example:
+    %       ax = axes;
+    %       plot(ax, datetime(2023,1,1)+days(0:100), rand(1,101));
+    %       pos.x1 = datetime(2023,1,10); pos.y1 = 0.2;
+    %       pos.x2 = datetime(2023,1,30); pos.y2 = 0.8;
+    %       ln = DateTimeLine(ax, pos, @(p)disp(p));
+    %
+    %   See also: DateTimeRectangle, EventMarker
+    %
+    %   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
+    %        Source: https://github.com/preraulab/labcode_main
 
     %************************************************************
     % PROPERTIES

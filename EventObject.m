@@ -1,34 +1,28 @@
 classdef EventObject
-    % EventObject - Structure representing a single event for EventMarker
+    %EVENTOBJECT  Type definition and runtime record for a single EventMarker event
     %
-    % This class defines an event type and holds runtime data for individual
-    % placed events (lines or regions). It is used internally by EventMarker
-    % to organize event types and placed instances.
+    %   Usage:
+    %       type_obj = EventObject(name, type_ID, region, constrain)
     %
-    % Usage:
-    %   type_obj = EventObject(name, type_ID, region, constrain)
+    %   Inputs:
+    %       name      : char - label for the event type -- required
+    %       type_ID   : integer - unique identifier for the event type -- required
+    %       region    : logical - true for rectangular region, false for point/line (default: false)
+    %       constrain : logical - if region, span full height when true (default: true)
     %
-    % Inputs:
-    %   name      - String label for the event type
-    %   type_ID   - Unique integer identifier for the event type
-    %   region    - Logical: true for rectangular region, false for point/line (default: false)
-    %   constrain - Logical: for regions, span full height if true (default: true)
+    %   Outputs:
+    %       type_obj : EventObject - new event type/instance record
     %
-    % Properties (Access = public):
-    %   name          - Display name of the event type
-    %   type_ID       - Unique integer type identifier
-    %   region        - True if event is a region (rectangle)
-    %   constrain     - True if region should be vertically constrained
-    %   event_ID      - Unique UUID string for each placed instance
-    %   obj_handle    - Graphics handle (DateTimeLine or DateTimeRectangle)
-    %   label_handle  - Handle to associated text label
+    %   Notes:
+    %       Used internally by EventMarker to organize event types and placed
+    %       instances. Public properties: name, type_ID, region, constrain,
+    %       event_ID, obj_handle, label_handle, isEditable.
+    %       Public methods: EventObject (constructor), time_bounds.
     %
-    % Methods (Access = public):
-    %   EventObject - Constructor
-    %   time_bounds - Return time bounds of the placed event
+    %   See also: EventMarker, DateTimeLine, DateTimeRectangle
     %
-    % Copyright 2024 Michael J. Prerau Laboratory - http://www.sleepEEG.org
-    % ********************************************************************
+    %   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
+    %        Source: https://github.com/preraulab/labcode_main
 
     %************************************************************
     % PROPERTIES

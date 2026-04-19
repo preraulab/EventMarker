@@ -1,46 +1,43 @@
 classdef EventMarker < handle
-    % EventMarker - Interactive event marker manager for MATLAB plots
+    %EVENTMARKER  Interactive event marker manager for MATLAB plots
     %
-    % This class allows users to interactively add, edit, and manage event markers
-    % (vertical lines or rectangular regions) on a plot axis. It supports both numeric
-    % and datetime x-axes seamlessly. Markers are organized by user-defined event types,
-    % each with a name, ID, color, and optional label. Double-clicking an existing marker
-    % enables interactive dragging/resizing using DateTimeLine or DateTimeRectangle objects.
+    %   Usage:
+    %       obj = EventMarker(event_axis, xbounds, ybounds, event_types, event_list, line_colors, font_size)
     %
-    % Usage:
-    %   obj = EventMarker(event_axis, xbounds, ybounds, event_types, event_list, line_colors, font_size)
+    %   Inputs:
+    %       event_axis  : axes handle - target axes (default: gca)
+    %       xbounds     : 1x2 double - [xmin xmax] placement limits (default: axis XLim)
+    %       ybounds     : 1x2 double - [ymin ymax] placement limits (default: axis YLim)
+    %       event_types : array of EventObject - event type definitions (default: [])
+    %       event_list  : array of EventObject - previously saved events (default: [])
+    %       line_colors : Nx3 double - color per event type (default: axes ColorOrder)
+    %       font_size   : double - font size for event labels (default: 12)
     %
-    % Inputs:
-    %   event_axis   - Handle to the target axes (default: gca)
-    %   xbounds      - [xmin xmax] limits for marker placement (default: axis XLim)
-    %   ybounds      - [ymin ymax] limits for marker placement (default: axis YLim)
-    %   event_types  - Array of event type structures (see below)
-    %   event_list   - Previously saved event array (default: empty)
-    %   line_colors  - Nx3 color matrix for event types (default: axes ColorOrder)
-    %   font_size    - Font size for event labels (default: 12)
+    %   Outputs:
+    %       obj : EventMarker handle object
     %
-    % Event type structure fields:
-    %   .name       - String label displayed above marker
-    %   .type_ID    - Unique integer identifier
-    %   .region     - Logical: true for rectangular region, false for vertical line
-    %   .constrain  - Logical: if true and region, rectangle spans full ybounds
+    %   Notes:
+    %       Supports both numeric and datetime x-axes. Markers are organized by
+    %       user-defined event types, each with name, type_ID, color, and
+    %       optional label. Double-clicking a marker enables interactive
+    %       drag/resize through DateTimeLine or DateTimeRectangle editors.
     %
-    % Properties (Access = public):
-    %   main_ax         - Axes containing the marker graphics
-    %   label_ax        - Invisible overlay axes for text labels
-    %   xbounds         - [xmin xmax] placement limits
-    %   ybounds         - [ymin ymax] placement limits
-    %   event_types     - Array of defined event type structures
-    %   event_list      - Array of placed event objects
-    %   colors          - Nx3 matrix of colors for each event type
-    %   label_fontsize  - Font size for labels
-    %   selected_ind    - Index of currently selected event (for external reference)
+    %       Event type structure fields:
+    %           .name      : string label displayed above marker
+    %           .type_ID   : unique integer identifier
+    %           .region    : logical - true for rectangular region, false for line
+    %           .constrain : logical - if true and region, spans full ybounds
     %
-    % Example:
-    %   See basic_viewer.m for a complete demonstration.
+    %       Public properties: main_ax, label_ax, xbounds, ybounds, event_types,
+    %       event_list, colors, label_fontsize, selected_ind.
     %
-    % Michael J. Prerau Laboratory - http://www.sleepEEG.org
-    % ********************************************************************
+    %   Example:
+    %       See basic_viewer.m for a complete demonstration.
+    %
+    %   See also: DateTimeLine, DateTimeRectangle, EventObject, basic_viewer
+    %
+    %   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
+    %        Source: https://github.com/preraulab/labcode_main
 
     %************************************************************
     % PROPERTIES
@@ -83,12 +80,24 @@ classdef EventMarker < handle
             %   event_axis, xbounds, ybounds, event_types, event_list,
             %   line_colors, font_size (optional; defaults provided)
             
-            % Default arguments
-            args = {[], [], [], [], [], [], 12};
-            % Override defaults with provided non-empty inputs
-            args(~cellfun('isempty', varargin)) = varargin(~cellfun('isempty', varargin));
-            [obj.main_ax, obj.xbounds, obj.ybounds, obj.event_types, ...
-             obj.event_list, obj.colors, obj.label_fontsize] = args{:};
+            p = inputParser;
+            p.FunctionName = 'EventMarker';
+            addOptional(p, 'event_axis',  []);
+            addOptional(p, 'xbounds',     []);
+            addOptional(p, 'ybounds',     []);
+            addOptional(p, 'event_types', []);
+            addOptional(p, 'event_list',  []);
+            addOptional(p, 'line_colors', []);
+            addOptional(p, 'font_size',   12);
+            parse(p, varargin{:});
+
+            obj.main_ax        = p.Results.event_axis;
+            obj.xbounds        = p.Results.xbounds;
+            obj.ybounds        = p.Results.ybounds;
+            obj.event_types    = p.Results.event_types;
+            obj.event_list     = p.Results.event_list;
+            obj.colors         = p.Results.line_colors;
+            obj.label_fontsize = p.Results.font_size;
             
             if isempty(obj.main_ax)
                 obj.main_ax = gca;

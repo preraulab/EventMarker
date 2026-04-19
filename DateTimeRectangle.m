@@ -1,58 +1,46 @@
 classdef DateTimeRectangle < handle
 %DATETIMERECTANGLE  Interactive draggable and resizable rectangle with datetime support
 %
-%   This class implements an interactive rectangle that can be dragged and
-%   resized using the mouse. It supports both numeric and datetime x-axes
-%   seamlessly and provides resize handles on corners and edges.
-%
-%   The rectangle position is represented by a struct:
-%       pos.x      : datetime or double   (left edge)
-%       pos.y      : double               (bottom edge)
-%       pos.width  : duration or double   (width in x-units)
-%       pos.height : double               (height in y-units)
-%
-%   Observable appearance properties automatically update the graphics when
-%   modified.
-%
 %   Usage:
 %       rect = DateTimeRectangle(ax, pos, callback)
-%       rect = DateTimeRectangle(ax, pos, callback, Name, Value, ...)
+%       rect = DateTimeRectangle(ax, pos, callback, 'Name', Value, ...)
 %
 %   Inputs:
-%       ax       : target axes handle
-%       pos      : position struct with fields x, y, width, height
-%       callback : function handle called on every position update
-%                  callback(pos)
+%       ax       : axes handle - target axes -- required
+%       pos      : struct with fields x (datetime/double), y (double),
+%                  width (duration/double), height (double) -- required
+%       callback : function handle - called with updated pos on every change -- required
 %
 %   Name-Value Pairs:
-%       'LineColor'       : RGB vector (default [0 0.4 1])
-%       'LineWidth'       : line width (default 2)
-%       'FaceAlpha'       : patch transparency (default 0.2)
-%       'HandleSize'      : marker size for resize handles (default 10)
-%       'ConstraintFcn'   : custom constraint function @(pos)pos
-%       'ConstrainToAxis' : keep rectangle inside axis limits (default true)
-%       'FullHeight'      : force rectangle to span full y-limits
-%       'FullWidth'       : force rectangle to span full x-limits
+%       'LineColor'       : 1x3 double - RGB border color (default: [0 0.4 1])
+%       'LineWidth'       : double - border width (default: 2)
+%       'FaceAlpha'       : double - patch transparency (default: 0.2)
+%       'HandleSize'      : double - marker size for resize handles (default: 10)
+%       'ConstraintFcn'   : function handle - custom constraint @(pos)pos (default: [])
+%       'ConstrainToAxis' : logical - keep rectangle inside axis limits (default: true)
+%       'FullHeight'      : logical - force rectangle to span full y-limits (default: false)
+%       'FullWidth'       : logical - force rectangle to span full x-limits (default: false)
+%
+%   Outputs:
+%       rect : DateTimeRectangle handle object
+%
+%   Notes:
+%       Supports dragging (inside), corner resizing, edge resizing, datetime-
+%       safe hit testing, and automatic cursor updates. Observable properties
+%       repaint the graphics on assignment. All listeners and callbacks are
+%       cleaned up on deletion.
 %
 %   Example:
 %       ax = axes;
 %       plot(ax, datetime(2023,1,1)+days(0:100), rand(1,101));
-%       pos.x = datetime(2023,1,10);
-%       pos.y = 0.2;
-%       pos.width = days(20);
-%       pos.height = 0.5;
+%       pos.x = datetime(2023,1,10); pos.y = 0.2;
+%       pos.width = days(20); pos.height = 0.5;
 %       rect = DateTimeRectangle(ax, pos, @(p)disp(p));
 %
-%   The rectangle supports:
-%       - Dragging (inside)
-%       - Corner resizing
-%       - Edge resizing
-%       - Automatic cursor updates
-%       - Datetime-safe hit testing
+%   See also: DateTimeLine, EventMarker
 %
-%   All listeners and callbacks are cleaned up on deletion.
-%
-%   Copyright 2025
+%   ∿∿∿  Prerau Laboratory MATLAB Codebase · sleepEEG.org  ∿∿∿
+%        Source: https://github.com/preraulab/labcode_main
 
     %% ======================== PUBLIC PROPERTIES ========================
     properties (Access = public)
