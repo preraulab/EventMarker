@@ -1,22 +1,22 @@
 API Reference
 =============
 
-Auto-generated reference for ``eventmarker``.
-
 Root
 ----
 
-.. mat:module:: .
+.. toctree::
+   :maxdepth: 1
 
-.. mat:autofunction:: DateTimeLine
-.. mat:autofunction:: DateTimeRectangle
-.. mat:autofunction:: EventMarker
-.. mat:autofunction:: EventObject
+   api/DateTimeLine
+   api/DateTimeRectangle
+   api/EventMarker
+   api/EventObject
 
 example_viewer
 --------------
 
-.. mat:module:: example_viewer
+.. toctree::
+   :maxdepth: 1
 
-.. mat:autofunction:: basic_viewer
+   api/basic_viewer
 
